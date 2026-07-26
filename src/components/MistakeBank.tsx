@@ -34,16 +34,16 @@ export const MistakeBank: React.FC<MistakeBankProps> = ({
     <div className="max-w-4xl mx-auto space-y-6">
       
       {/* Header Banner */}
-      <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-amber-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#161c28] p-6 sm:p-8 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
         <div>
           <div className="flex items-center gap-2">
-            <RotateCcw className="w-5 h-5 text-amber-500" />
-            <h2 className="text-xl font-bold text-slate-900 dark:text-amber-100">
+            <RotateCcw className="w-6 h-6 text-[#ff9600]" />
+            <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
               Mistake Bank & Error Review
             </h2>
           </div>
-          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-            Re-test your weak words to build long-term spelling memory.
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1">
+            Re-test misspelled words to refine spelling intuition and accuracy.
           </p>
         </div>
 
@@ -52,18 +52,18 @@ export const MistakeBank: React.FC<MistakeBankProps> = ({
             <>
               <button
                 onClick={onClearMistakes}
-                className="px-3.5 py-2 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5"
+                className="px-4 py-3 bg-red-50 dark:bg-red-950/60 hover:bg-red-100 dark:hover:bg-red-900/60 text-[#ff4b4b] border-2 border-[#ffc1c4] dark:border-red-900 rounded-2xl text-xs font-black uppercase tracking-wider transition-colors flex items-center gap-1.5"
               >
-                <Trash2 className="w-3.5 h-3.5" />
-                Clear All
+                <Trash2 className="w-4 h-4" />
+                Clear
               </button>
 
               <button
                 onClick={handleStartMistakeDrill}
-                className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow-xs transition-all flex items-center gap-2 text-xs"
+                className="px-6 py-3 bg-[#58cc02] hover:bg-[#61e002] active:translate-y-1 active:border-b-0 border-b-4 border-[#46a302] text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-sm transition-all flex items-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
-                Start Mistake Drill ({mistakes.length})
+                Start Drill ({mistakes.length})
               </button>
             </>
           )}
@@ -71,13 +71,13 @@ export const MistakeBank: React.FC<MistakeBankProps> = ({
       </div>
 
       {mistakes.length === 0 ? (
-        <div className="p-12 text-center bg-white dark:bg-slate-900 rounded-3xl border border-amber-200 dark:border-slate-800 shadow-xs space-y-3">
-          <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
-          <h3 className="text-lg font-bold text-slate-900 dark:text-amber-100">
-            No Misspelled Words Saved!
+        <div className="p-12 text-center bg-white dark:bg-[#161c28] rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xs space-y-3 transition-colors">
+          <CheckCircle2 className="w-12 h-12 text-[#58cc02] mx-auto" />
+          <h3 className="text-2xl font-black text-slate-800 dark:text-slate-100">
+            Mistake Bank Empty!
           </h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Great job! Your mistake bank is clean. Any word you misspell during dictation will automatically show up here for review.
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+            Perfect record! Any words you misspell during practice sessions will accumulate here for target review.
           </p>
         </div>
       ) : (
@@ -85,39 +85,39 @@ export const MistakeBank: React.FC<MistakeBankProps> = ({
           {mistakes.map((entry) => (
             <div
               key={entry.word.id}
-              className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-amber-200/80 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              className="p-5 bg-white dark:bg-[#161c28] rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors"
             >
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono font-black text-lg text-amber-600 dark:text-amber-400 capitalize">
+                  <span className="font-black text-2xl text-slate-800 dark:text-slate-100 uppercase">
                     {entry.word.word}
                   </span>
                   <button
                     onClick={() => pronouncer.speakWord(entry.word.word)}
-                    className="p-1 hover:bg-amber-100 dark:hover:bg-slate-800 rounded-lg text-slate-500"
+                    className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-[#1cb0f6]"
                     title="Pronounce"
                   >
-                    <Volume2 className="w-4 h-4 text-amber-600" />
+                    <Volume2 className="w-5 h-5" />
                   </button>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 font-mono">
-                    {entry.word.phonetic}
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                    [{entry.word.phonetic}]
                   </span>
                 </div>
 
-                <div className="text-xs text-slate-600 dark:text-slate-400 italic">
+                <div className="text-xs font-bold text-slate-600 dark:text-slate-300 italic">
                   "{entry.word.definition}"
                 </div>
 
-                <div className="flex items-center gap-3 text-[11px] text-slate-500 pt-1">
-                  <span>Language: <strong className="text-slate-700 dark:text-slate-300">{entry.word.origin}</strong></span>
+                <div className="flex items-center gap-3 text-xs font-extrabold text-slate-400 dark:text-slate-500 pt-1">
+                  <span>Origin: <strong className="text-slate-700 dark:text-slate-300">{entry.word.origin}</strong></span>
                   <span>•</span>
-                  <span>Your last attempt: <strong className="text-rose-600 line-through">{entry.userAttempt}</strong></span>
+                  <span>Last attempt: <strong className="text-[#ff4b4b] line-through">{entry.userAttempt}</strong></span>
                 </div>
               </div>
 
               <div className="text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 border-slate-100 dark:border-slate-800 pt-2 sm:pt-0">
-                <span className="text-xs px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 font-bold border border-rose-200/60">
-                  Missed {entry.timesWrong} {entry.timesWrong === 1 ? 'time' : 'times'}
+                <span className="text-xs font-black px-3 py-1 rounded-xl bg-red-100 dark:bg-red-950/80 text-[#ff4b4b] border border-red-200 dark:border-red-900 uppercase tracking-wider">
+                  Missed {entry.timesWrong}x
                 </span>
                 <button
                   onClick={() => {
@@ -131,9 +131,9 @@ export const MistakeBank: React.FC<MistakeBankProps> = ({
                     };
                     onStartPracticeList(singleWordList);
                   }}
-                  className="mt-2 text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1"
+                  className="mt-2 text-xs font-black text-[#1cb0f6] hover:underline flex items-center gap-1 uppercase tracking-wider"
                 >
-                  Retry Now <ArrowRight className="w-3.5 h-3.5" />
+                  Retry <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>

@@ -90,52 +90,52 @@ export const WordListManager: React.FC<WordListManagerProps> = ({
     <div className="max-w-6xl mx-auto space-y-6">
       
       {/* Header & AI Generator Trigger Banner */}
-      <div className="bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 text-slate-950 p-6 sm:p-8 rounded-3xl shadow-lg flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div className="bg-white dark:bg-[#161c28] text-slate-800 dark:text-slate-100 p-6 sm:p-8 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-6 transition-colors">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/15 border border-slate-950/20 text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            AI-Powered List Generator
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-2xl bg-[#e5f8d0] dark:bg-[#1e3a10] text-[#58a700] dark:text-[#72f00a] text-xs font-black uppercase tracking-wider border border-[#b8f28b] dark:border-[#336611]">
+            <Sparkles className="w-4 h-4 text-[#58cc02]" />
+            AI Word List Generator
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-            Explore & Create Spelling Bee Lists
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
+            Duolingo Word Libraries
           </h2>
-          <p className="text-sm font-medium opacity-90 max-w-xl">
-            Choose from curated competition word sets or generate custom AI lists tailored to any origin, topic, or difficulty tier.
+          <p className="text-sm font-bold text-slate-500 dark:text-slate-400 max-w-xl">
+            Select competition word sets or generate custom AI lists focused on specific origins, roots, or difficulty levels.
           </p>
         </div>
 
         <button
           onClick={() => setShowAiGeneratorModal(true)}
-          className="px-6 py-3.5 bg-slate-950 hover:bg-slate-900 text-amber-300 font-bold rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 whitespace-nowrap active:scale-95"
+          className="px-6 py-3.5 bg-[#58cc02] hover:bg-[#61e002] active:translate-y-1 active:border-b-0 border-b-4 border-[#46a302] text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-sm transition-all flex items-center justify-center gap-2 whitespace-nowrap"
         >
-          <Wand2 className="w-5 h-5 text-amber-400" />
+          <Wand2 className="w-4 h-4" />
           Generate AI Word List
         </button>
       </div>
 
       {/* Filters & Search Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-amber-200/80 dark:border-slate-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#161c28] p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
         
         {/* Difficulty Filter Tabs */}
         <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
           <button
             onClick={() => setFilterDifficulty('all')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition-all whitespace-nowrap ${
+            className={`px-3 py-1.5 text-xs font-black uppercase tracking-wider rounded-xl transition-all whitespace-nowrap ${
               filterDifficulty === 'all'
-                ? 'bg-amber-500 text-slate-950 font-bold'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-amber-100'
+                ? 'bg-[#1cb0f6] text-white border-b-2 border-[#1899d6]'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
-            All Difficulty Levels
+            All Difficulties
           </button>
           {(['beginner', 'intermediate', 'advanced', 'championship'] as DifficultyLevel[]).map((diff) => (
             <button
               key={diff}
               onClick={() => setFilterDifficulty(diff)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition-all capitalize whitespace-nowrap ${
+              className={`px-3 py-1.5 text-xs font-black uppercase tracking-wider rounded-xl transition-all capitalize whitespace-nowrap ${
                 filterDifficulty === diff
-                  ? 'bg-amber-500 text-slate-950 font-bold'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-amber-100'
+                  ? 'bg-[#1cb0f6] text-white border-b-2 border-[#1899d6]'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
               {diff}
@@ -145,13 +145,13 @@ export const WordListManager: React.FC<WordListManagerProps> = ({
 
         {/* Search Field */}
         <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search words or topics..."
-            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-amber-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-amber-500"
+            className="w-full pl-9 pr-4 py-2 text-xs font-bold bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-100 focus:outline-none focus:border-[#1cb0f6] placeholder:text-slate-400 dark:placeholder:text-slate-600"
           />
         </div>
       </div>
@@ -163,47 +163,47 @@ export const WordListManager: React.FC<WordListManagerProps> = ({
           return (
             <div
               key={list.id}
-              className={`p-6 rounded-2xl border transition-all flex flex-col justify-between space-y-4 ${
+              className={`p-6 rounded-3xl border-2 transition-all flex flex-col justify-between space-y-4 ${
                 isSelected
-                  ? 'bg-amber-50/90 dark:bg-slate-900 border-2 border-amber-500 shadow-md'
-                  : 'bg-white dark:bg-slate-900 border-amber-200/80 dark:border-slate-800 hover:border-amber-400 shadow-xs'
+                  ? 'bg-sky-50/60 dark:bg-sky-950/40 border-[#1cb0f6] shadow-sm'
+                  : 'bg-white dark:bg-[#161c28] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
               }`}
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold border uppercase tracking-wider ${getDifficultyBadgeColor(list.difficulty)}`}>
+                  <span className={`text-[10px] px-2.5 py-0.5 rounded-xl font-extrabold border uppercase tracking-wider ${getDifficultyBadgeColor(list.difficulty)}`}>
                     {list.difficulty}
                   </span>
                   {list.isCustom && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 font-bold border border-purple-200 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-purple-500" /> AI Generated
+                    <span className="text-[10px] px-2 py-0.5 rounded-lg bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 font-bold border border-amber-200 dark:border-amber-800 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-[#ff9600]" /> AI Generated
                     </span>
                   )}
                 </div>
 
-                <h3 className="text-lg font-bold text-slate-900 dark:text-amber-100">
+                <h3 className="text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
                   {list.title}
                 </h3>
 
-                <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 line-clamp-2">
                   {list.description}
                 </p>
               </div>
 
               {/* Sample words preview */}
-              <div className="space-y-1.5 pt-2 border-t border-amber-100 dark:border-slate-800">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  Contains {list.words.length} Words, e.g.:
+              <div className="space-y-1.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                  {list.words.length} Words, e.g.:
                 </span>
                 <div className="flex flex-wrap gap-1">
                   {list.words.slice(0, 4).map((w) => (
-                    <span key={w.id} className="text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md border border-slate-200/50 dark:border-slate-700">
+                    <span key={w.id} className="text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-700">
                       {w.word}
                     </span>
                   ))}
                   {list.words.length > 4 && (
-                    <span className="text-xs text-slate-400 self-center">
-                      +{list.words.length - 4} more
+                    <span className="text-xs font-bold text-slate-400 dark:text-slate-500 self-center">
+                      +{list.words.length - 4}
                     </span>
                   )}
                 </div>
@@ -212,20 +212,20 @@ export const WordListManager: React.FC<WordListManagerProps> = ({
               {/* Action Button */}
               <button
                 onClick={() => onSelectWordList(list)}
-                className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                className={`w-full py-3 rounded-2xl text-xs font-black uppercase tracking-wider border-b-4 transition-all flex items-center justify-center gap-2 ${
                   isSelected
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
-                    : 'bg-slate-900 dark:bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-white dark:text-amber-100'
+                    ? 'bg-[#58cc02] border-[#46a302] text-white shadow-xs'
+                    : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-2 border-slate-200 dark:border-slate-700 border-b-4 border-slate-300 dark:border-slate-600'
                 }`}
               >
                 {isSelected ? (
                   <>
-                    <Check className="w-4 h-4" /> Currently Active List
+                    <Check className="w-4 h-4" /> Active Selection
                   </>
                 ) : (
                   <>
-                    Practice This List
-                    <ArrowRight className="w-4 h-4" />
+                    Practice Library
+                    <ArrowRight className="w-4 h-4 text-[#58cc02]" />
                   </>
                 )}
               </button>

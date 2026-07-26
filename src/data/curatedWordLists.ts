@@ -10,7 +10,7 @@ export const CURATED_WORD_LISTS: WordList[] = [
     words: [
       {
         id: 'b1',
-        word: 'aquiesscent',
+        word: 'acquiescent',
         phonetic: '/æk.wiˈɛs.ənt/',
         definition: 'Ready to accept or agree to something without protest.',
         partOfSpeech: 'adjective',
@@ -79,6 +79,78 @@ export const CURATED_WORD_LISTS: WordList[] = [
         syllables: 'mis·cel·la·ne·ous',
         difficulty: 'beginner',
         mnemonic: 'Mis-cell-an-eous: notice the double L!'
+      },
+      {
+        id: 'b7',
+        word: 'silhouette',
+        phonetic: '/ˌsɪl.uˈet/',
+        definition: 'The dark shape and outline of someone or something visible against a lighter background.',
+        partOfSpeech: 'noun',
+        origin: 'French',
+        sampleSentence: 'The mountain silhouette stood out clearly against the sunset sky.',
+        syllables: 'sil·hou·ette',
+        difficulty: 'beginner',
+        mnemonic: 'Sil-hou-ette ends in -ette like cassette.'
+      },
+      {
+        id: 'b8',
+        word: 'quarantine',
+        phonetic: '/ˈkwɔːr.ən.tiːn/',
+        definition: 'A state or period of isolation to prevent the spread of disease.',
+        partOfSpeech: 'noun / verb',
+        origin: 'Italian',
+        sampleSentence: 'The traveler was placed in quarantine for fourteen days.',
+        syllables: 'quar·an·tine',
+        difficulty: 'beginner',
+        mnemonic: 'Derived from Italian quaranta (forty).'
+      },
+      {
+        id: 'b9',
+        word: 'handkerchief',
+        phonetic: '/ˈhæŋ.kɚ.tʃiːf/',
+        definition: 'A square piece of cloth used for wiping one\'s nose or face.',
+        partOfSpeech: 'noun',
+        origin: 'English',
+        sampleSentence: 'He folded his embroidered handkerchief neatly into his pocket.',
+        syllables: 'hand·ker·chief',
+        difficulty: 'beginner',
+        mnemonic: 'Hand + kerchief.'
+      },
+      {
+        id: 'b10',
+        word: 'playwright',
+        phonetic: '/ˈpleɪ.raɪt/',
+        definition: 'A person who writes plays; a dramatist.',
+        partOfSpeech: 'noun',
+        origin: 'English',
+        sampleSentence: 'The famous playwright bowed as the audience applauded.',
+        syllables: 'play·wright',
+        difficulty: 'beginner',
+        mnemonic: 'Wright means craftsman (like wheelwright), spelled W-R-I-G-H-T.'
+      },
+      {
+        id: 'b11',
+        word: 'vacuum',
+        phonetic: '/ˈvæk.juːm/',
+        definition: 'A space entirely devoid of matter, or a device used for cleaning.',
+        partOfSpeech: 'noun',
+        origin: 'Latin',
+        sampleSentence: 'Sound cannot travel through a vacuum.',
+        syllables: 'vac·u·um',
+        difficulty: 'beginner',
+        mnemonic: 'Vacuum has one C and double U!'
+      },
+      {
+        id: 'b12',
+        word: 'bureaucracy',
+        phonetic: '/bjʊəˈrɒk.rə.si/',
+        definition: 'A system of government in which most decisions are made by state officials.',
+        partOfSpeech: 'noun',
+        origin: 'French / Greek',
+        sampleSentence: 'Navigating through government bureaucracy required patience.',
+        syllables: 'bu·reau·cra·cy',
+        difficulty: 'beginner',
+        mnemonic: 'Bureau (b-u-r-e-a-u) + cracy.'
       }
     ]
   },
@@ -115,7 +187,7 @@ export const CURATED_WORD_LISTS: WordList[] = [
       },
       {
         id: 'i3',
-        word: 'pharoah',
+        word: 'pharaoh',
         phonetic: '/ˈfeɪ.roʊ/',
         definition: 'A ruler in ancient Egypt.',
         partOfSpeech: 'noun',
@@ -148,13 +220,49 @@ export const CURATED_WORD_LISTS: WordList[] = [
         syllables: 'sur·vei·llance',
         difficulty: 'intermediate',
         mnemonic: 'Survei + double L + ance.'
+      },
+      {
+        id: 'i6',
+        word: 'reconnaissance',
+        phonetic: '/rɪˈkɒn.ə.səns/',
+        definition: 'Military observation of a region to locate an enemy or ascertain strategic features.',
+        partOfSpeech: 'noun',
+        origin: 'French',
+        sampleSentence: 'The drone completed a aerial reconnaissance mission over the coast.',
+        syllables: 're·con·nais·sance',
+        difficulty: 'intermediate',
+        mnemonic: 'Re-con-nais-sance: double N and double S!'
+      },
+      {
+        id: 'i7',
+        word: 'sovereignty',
+        phonetic: '/ˈsɒv.rɪn.ti/',
+        definition: 'Supreme power or authority; the authority of a state to govern itself.',
+        partOfSpeech: 'noun',
+        origin: 'French / Latin',
+        sampleSentence: 'The nation celebrated fifty years of full political sovereignty.',
+        syllables: 'sov·er·eign·ty',
+        difficulty: 'intermediate',
+        mnemonic: 'Contains sovereign + ty.'
+      },
+      {
+        id: 'i8',
+        word: 'liaison',
+        phonetic: '/liˈeɪ.zɒn/',
+        definition: 'Communication or cooperation which facilitates a close working relationship.',
+        partOfSpeech: 'noun',
+        origin: 'French',
+        sampleSentence: 'She served as an effective liaison between the medical staff and families.',
+        syllables: 'li·ai·son',
+        difficulty: 'intermediate',
+        mnemonic: 'Li-ai-son has two I\'s surrounding an A!'
       }
     ]
   },
   {
     id: 'advanced-state-champs',
     title: 'Advanced - State Championship',
-    description: 'High-level vocabulary involving French silent letters, German compounds, and Italian musical/literary terms.',
+    description: 'High-level vocabulary involving French silent letters, German compounds, and Italian terms.',
     difficulty: 'advanced',
     category: 'State Level',
     words: [
@@ -213,10 +321,22 @@ export const CURATED_WORD_LISTS: WordList[] = [
         definition: 'A frivolous, flighty, or excessively talkative person.',
         partOfSpeech: 'noun',
         origin: 'Middle English',
-        sampleSentence: 'She was affectionately known as a flibbertigibbet who brought endless laughter to parties.',
+        sampleSentence: 'She was affectionately known as a flibbertigibbet who brought endless laughter.',
         syllables: 'flib·ber·ti·gib·bet',
         difficulty: 'advanced',
         mnemonic: 'Flibber-ti-gibbet with double B.'
+      },
+      {
+        id: 'a6',
+        word: 'schadenfreude',
+        phonetic: '/ˈʃɑː.dənˌfrɔɪ.də/',
+        definition: 'Pleasure derived by someone from another person\'s misfortune.',
+        partOfSpeech: 'noun',
+        origin: 'German',
+        sampleSentence: 'Resisting schadenfreude when an opponent falters is a sign of true sportsmanship.',
+        syllables: 'scha·den·freu·de',
+        difficulty: 'advanced',
+        mnemonic: 'Schaden (damage) + Freude (joy).'
       }
     ]
   },
@@ -281,12 +401,25 @@ export const CURATED_WORD_LISTS: WordList[] = [
         phonetic: '/ˌbuː.ɡənˈvɪl.i.ə/',
         definition: 'An ornamental tropical climbing plant with bright magenta or purple bracts.',
         partOfSpeech: 'noun',
-        origin: 'French (named after Louis Antoine de Bougainville)',
+        origin: 'French',
         sampleSentence: 'Vibrant pink bougainvillea draped gracefully over the stone archway.',
         syllables: 'bou·gain·vil·le·a',
         difficulty: 'championship',
         mnemonic: 'Bou-gain-vil-le-a with double L.'
+      },
+      {
+        id: 'c6',
+        word: 'psammon',
+        phonetic: '/ˈsæm.ɒn/',
+        definition: 'Organisms living among beach sand grains.',
+        partOfSpeech: 'noun',
+        origin: 'Greek',
+        sampleSentence: 'Biologists studied microscopic psammon collected along the intertidal shoreline.',
+        syllables: 'psam·mon',
+        difficulty: 'championship',
+        mnemonic: 'Silent initial P: P-S-A-M-M-O-N.'
       }
     ]
   }
 ];
+

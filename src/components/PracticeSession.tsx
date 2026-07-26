@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, Volume1, HelpCircle, CheckCircle2, XCircle, ArrowRight, Sparkles, BookOpen, Globe, Lightbulb, RefreshCw, ChevronDown, ChevronUp, Mic, ListCheck } from 'lucide-react';
+import { Volume2, Volume1, HelpCircle, CheckCircle2, XCircle, ArrowRight, Sparkles, BookOpen, Lightbulb, RefreshCw, Heart, X, Zap } from 'lucide-react';
 import { SpellingWord, WordList, DifficultyLevel, PracticeResult } from '../types';
 import { pronouncer } from '../utils/audio';
 import { compareSpelling, getDifficultyBadgeColor, DetailedSpellingFeedback } from '../utils/spellingChecker';
@@ -9,6 +9,8 @@ interface PracticeSessionProps {
   selectedDifficulty: DifficultyLevel;
   onRecordResult: (result: PracticeResult, word: SpellingWord) => void;
   onChangeListClick: () => void;
+  onNavigateToMistakes?: () => void;
+  hasMistakes?: boolean;
 }
 
 export const PracticeSession: React.FC<PracticeSessionProps> = ({
@@ -16,8 +18,15 @@ export const PracticeSession: React.FC<PracticeSessionProps> = ({
   selectedDifficulty,
   onRecordResult,
   onChangeListClick,
+  onNavigateToMistakes,
+  hasMistakes = false,
 }) => {
+  // Session queue containing exactly the words from currentList shuffled once (no repeats!)
+  const [sessionQueue, setSessionQueue] = useState<SpellingWord[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [sessionCorrectCount, setSessionCorrectCount] = useState<number>(0);
+  const [isLessonComplete, setIsLessonComplete] = useState<boolean>(false);
+
   const [userAttempt, setUserAttempt] = useState<string>('');
   const [feedback, setFeedback] = useState<DetailedSpellingFeedback | null>(null);
   
@@ -38,15 +47,27 @@ export const PracticeSession: React.FC<PracticeSessionProps> = ({
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Filter list words by active difficulty if needed, or fallback to current list
-  const activeWords = currentList.words.length > 0
-    ? currentList.words
-    : [];
-
-  const currentWord: SpellingWord | undefined = activeWords[currentIndex];
+  // Restart/Initialize session with a fresh, non-repeating shuffled queue
+  const startFreshSession = () => {
+    if (currentList.words && currentList.words.length > 0) {
+      const shuffled = [...currentList.words].sort(() => Math.random() - 0.5);
+      setSessionQueue(shuffled);
+      setCurrentIndex(0);
+      setSessionCorrectCount(0);
+      setIsLessonComplete(false);
+    } else {
+      setSessionQueue([]);
+    }
+  };
 
   useEffect(() => {
-    // Reset state when word changes
+    startFreshSession();
+  }, [currentList]);
+
+  const currentWord: SpellingWord | undefined = sessionQueue[currentIndex];
+
+  useEffect(() => {
+    // Reset word level state
     setUserAttempt('');
     setFeedback(null);
     setShowDefinition(false);
@@ -59,29 +80,106 @@ export const PracticeSession: React.FC<PracticeSessionProps> = ({
     setWordStartTime(Date.now());
 
     // Auto pronounce on word change
-    if (currentWord) {
-      setTimeout(() => {
+    if (currentWord && !isLessonComplete) {
+      const timer = setTimeout(() => {
         pronouncer.speakWord(currentWord.word);
         if (inputRef.current) inputRef.current.focus();
-      }, 300);
+      }, 350);
+      return () => clearTimeout(timer);
     }
-  }, [currentIndex, currentList]);
+  }, [currentIndex, sessionQueue, isLessonComplete]);
 
-  if (!currentWord || activeWords.length === 0) {
+  if (isLessonComplete) {
+    const totalWords = sessionQueue.length;
+    const accuracy = totalWords > 0 ? Math.round((sessionCorrectCount / totalWords) * 100) : 100;
+    const xpEarned = sessionCorrectCount * 10 + 20;
+
     return (
-      <div className="max-w-2xl mx-auto my-12 p-8 text-center bg-white dark:bg-slate-900 rounded-2xl border border-amber-200 dark:border-slate-800 shadow-md">
-        <BookOpen className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-        <h3 className="text-xl font-bold text-slate-900 dark:text-amber-100 mb-2">
-          No Words Available in this List
+      <div className="max-w-2xl mx-auto my-8 p-8 sm:p-12 text-center bg-white dark:bg-[#161c28] rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl space-y-8 animate-in fade-in zoom-in-95 duration-300">
+        <div className="relative inline-block">
+          <div className="w-24 h-24 rounded-full bg-[#58cc02] text-white flex items-center justify-center font-black text-5xl mx-auto border-b-6 border-[#46a302] shadow-lg animate-bounce">
+            🦉
+          </div>
+          <div className="absolute -bottom-2 -right-2 bg-[#ff9600] text-white font-black text-xs px-3 py-1 rounded-full border-2 border-white dark:border-[#161c28] uppercase">
+            🎉 Finished!
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
+            Lesson Complete!
+          </h2>
+          <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mt-2">
+            You practiced all {totalWords} words in <span className="text-[#1cb0f6]">{currentList.title}</span> without repeating!
+          </p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 text-left">
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700">
+            <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 block">Total XP</span>
+            <span className="text-xl sm:text-2xl font-black text-[#ff9600]">+{xpEarned} XP</span>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700">
+            <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 block">Accuracy</span>
+            <span className="text-xl sm:text-2xl font-black text-[#58cc02]">{accuracy}%</span>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700">
+            <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 block">Correct</span>
+            <span className="text-xl sm:text-2xl font-black text-[#1cb0f6]">{sessionCorrectCount}/{totalWords}</span>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <button
+            onClick={startFreshSession}
+            className="w-full sm:w-auto px-8 py-4 bg-[#58cc02] hover:bg-[#61e002] active:translate-y-1 active:border-b-0 border-b-4 border-[#46a302] text-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
+          >
+            <RefreshCw className="w-5 h-5" />
+            Practice List Again
+          </button>
+
+          <button
+            onClick={onChangeListClick}
+            className="w-full sm:w-auto px-8 py-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-black text-sm uppercase tracking-wider rounded-2xl transition-all flex items-center justify-center gap-2"
+          >
+            <BookOpen className="w-5 h-5" />
+            Other Libraries
+          </button>
+
+          {hasMistakes && onNavigateToMistakes && (
+            <button
+              onClick={onNavigateToMistakes}
+              className="w-full sm:w-auto px-8 py-4 bg-[#ff4b4b] hover:bg-[#ff5959] active:translate-y-1 active:border-b-0 border-b-4 border-[#ea2b2b] text-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
+            >
+              Review Mistakes
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentWord || sessionQueue.length === 0) {
+    return (
+      <div className="max-w-2xl mx-auto my-12 p-8 text-center bg-white dark:bg-[#161c28] rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="w-16 h-16 rounded-full bg-[#58cc02] text-white flex items-center justify-center font-black text-3xl mx-auto border-b-4 border-[#46a302]">
+          🦉
+        </div>
+        <h3 className="text-2xl font-black text-slate-800 dark:text-slate-100">
+          No Words Available
         </h3>
-        <p className="text-slate-600 dark:text-slate-400 mb-6">
-          Please select a different word list or generate a custom AI list for {selectedDifficulty} level.
+        <p className="text-slate-500 dark:text-slate-400 font-bold">
+          Please choose another word list or generate a custom AI word list.
         </p>
         <button
           onClick={onChangeListClick}
-          className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl shadow-sm transition-all"
+          className="px-8 py-3.5 bg-[#58cc02] hover:bg-[#61e002] active:translate-y-1 active:border-b-0 border-b-4 border-[#46a302] text-white font-black text-sm uppercase tracking-wider rounded-2xl shadow-sm transition-all"
         >
-          Browse & Generate Word Lists
+          Select Word Library
         </button>
       </div>
     );
@@ -126,8 +224,9 @@ export const PracticeSession: React.FC<PracticeSessionProps> = ({
 
     onRecordResult(result, currentWord);
 
-    // If incorrect, automatically ask AI for advice in background
-    if (!resultDetails.isCorrect) {
+    if (resultDetails.isCorrect) {
+      setSessionCorrectCount(prev => prev + 1);
+    } else {
       fetchAiAdvice(currentWord, userAttempt.trim());
     }
   };
@@ -157,364 +256,308 @@ export const PracticeSession: React.FC<PracticeSessionProps> = ({
   };
 
   const handleNextWord = () => {
-    if (currentIndex < activeWords.length - 1) {
-      setCurrentIndex(prev => prev + 1);
+    // When user reaches end of session queue, show Lesson Complete screen!
+    if (currentIndex + 1 >= sessionQueue.length) {
+      setIsLessonComplete(true);
     } else {
-      // Loop back or prompt finish
-      setCurrentIndex(0);
+      setCurrentIndex(prev => prev + 1);
     }
   };
 
+  // Progress percentage through current list
+  const progressPercent = Math.min(100, Math.round(((currentIndex + 1) / sessionQueue.length) * 100));
+
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6 pb-28">
       
-      {/* Session Header Banner */}
-      <div className="flex items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-2xl border border-amber-200/80 dark:border-slate-800 shadow-xs">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold border uppercase tracking-wider ${getDifficultyBadgeColor(currentWord.difficulty || selectedDifficulty)}`}>
-              {currentWord.difficulty || selectedDifficulty}
-            </span>
-            <span className="text-xs text-slate-500 font-medium">{currentList.category}</span>
+      {/* Duolingo Lesson Top Header Bar */}
+      <div className="flex items-center gap-4 bg-white dark:bg-[#161c28] p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+        <button
+          onClick={onChangeListClick}
+          className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border-b-2 border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-extrabold flex items-center justify-center transition-all flex-shrink-0"
+          title="Quit Lesson"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Green Animated Duolingo Progress Bar */}
+        <div className="flex-1 bg-slate-200 dark:bg-slate-800 h-4 rounded-full overflow-hidden p-0.5 border border-slate-300 dark:border-slate-700">
+          <div 
+            className="bg-[#58cc02] h-full rounded-full transition-all duration-500 relative"
+            style={{ width: `${progressPercent}%` }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />
           </div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-amber-100 mt-1">
-            {currentList.title}
-          </h2>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <span className="text-xs text-slate-500 block font-semibold">Word Progress</span>
-            <span className="text-sm font-black text-amber-600 dark:text-amber-400">
-              {currentIndex + 1} / {activeWords.length}
-            </span>
-          </div>
-          <button
-            onClick={onChangeListClick}
-            className="p-2 text-slate-600 dark:text-slate-300 hover:bg-amber-100 dark:hover:bg-slate-800 rounded-xl text-xs font-semibold border border-amber-200 dark:border-slate-700 transition-colors"
-            title="Switch List"
-          >
-            Switch List
-          </button>
+        {/* List Counter Badge */}
+        <div className="flex items-center gap-1.5 flex-shrink-0 font-black text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <span>{currentIndex + 1} / {sessionQueue.length}</span>
         </div>
       </div>
 
-      {/* Main Dictation Card */}
-      <div className="bg-gradient-to-b from-amber-50/60 to-white dark:from-slate-900 dark:to-slate-950 p-6 sm:p-8 rounded-3xl border border-amber-200 dark:border-slate-800 shadow-md space-y-6">
+      {/* Main Duolingo Practice Card */}
+      <div className="bg-white dark:bg-[#161c28] p-6 sm:p-10 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-sm space-y-8 transition-colors">
         
-        {/* Audio Pronunciation Controls */}
-        <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center p-3 bg-amber-100 dark:bg-amber-950/60 rounded-full border border-amber-300 dark:border-amber-800/60 mb-1">
-            <Volume2 className="w-8 h-8 text-amber-600 dark:text-amber-400 animate-bounce" />
+        {/* Title Prompt */}
+        <div className="text-center space-y-1">
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-700 dark:text-slate-100 tracking-tight">
+            Listen and type what you hear
+          </h2>
+          <div className="flex items-center justify-center gap-2 text-xs font-bold text-slate-400 dark:text-slate-500">
+            <span className="uppercase tracking-wider font-extrabold text-[#1cb0f6] bg-sky-50 dark:bg-sky-950/60 px-2.5 py-0.5 rounded-lg border border-sky-200 dark:border-sky-800">
+              {currentWord.difficulty || selectedDifficulty}
+            </span>
+            <span>•</span>
+            <span>{currentList.title}</span>
           </div>
-
-          <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-            Listen to the judge's pronunciation:
-          </h3>
-
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <button
-              onClick={() => pronouncer.speakWord(currentWord.word)}
-              className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-black rounded-2xl shadow-sm flex items-center gap-2 transition-all"
-            >
-              <Volume2 className="w-5 h-5" />
-              Pronounce Word
-            </button>
-
-            <button
-              onClick={() => pronouncer.speakWord(currentWord.word, true)}
-              className="px-4 py-2.5 bg-white dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold rounded-2xl border border-amber-200 dark:border-slate-700 flex items-center gap-2 text-sm transition-all"
-            >
-              <Volume1 className="w-4 h-4 text-amber-600" />
-              Slow (0.6x)
-            </button>
-
-            <button
-              onClick={() => pronouncer.spellOutLetters(currentWord.word)}
-              className="px-3.5 py-2.5 bg-white dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-medium rounded-2xl border border-amber-200 dark:border-slate-700 flex items-center gap-1.5 text-xs transition-all"
-              title="Spell out letter sound guide"
-            >
-              Spell Out
-            </button>
-          </div>
-
-          <p className="text-xs text-amber-800/80 dark:text-amber-300/70 font-mono italic">
-            Phonetic: {currentWord.phonetic}
-          </p>
         </div>
 
-        {/* Spelling Clues Accordion (Scripps Bee official options) */}
-        <div className="border-t border-amber-200/80 dark:border-slate-800 pt-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-              <HelpCircle className="w-3.5 h-3.5 text-amber-500" />
-              Ask the Judge for Clues
+        {/* Giant Duolingo Speaker Buttons */}
+        <div className="flex items-center justify-center gap-4 py-2">
+          {/* Main Pronunciation Speaker */}
+          <button
+            onClick={() => pronouncer.speakWord(currentWord.word)}
+            className="w-24 h-24 rounded-3xl bg-[#1cb0f6] hover:bg-[#20bdff] active:translate-y-1 active:border-b-0 border-b-6 border-[#1899d6] text-white flex flex-col items-center justify-center shadow-md transition-all group"
+            title="Click to Listen"
+          >
+            <Volume2 className="w-10 h-10 group-hover:scale-110 transition-transform" />
+            <span className="text-[10px] font-black uppercase tracking-wider mt-1">Normal</span>
+          </button>
+
+          {/* Slow Speech Button */}
+          <button
+            onClick={() => pronouncer.speakWord(currentWord.word, true)}
+            className="w-16 h-16 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 border-b-4 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-[#1cb0f6] flex flex-col items-center justify-center transition-all group active:translate-y-0.5"
+            title="Slow Speech (0.6x)"
+          >
+            <Volume1 className="w-7 h-7 text-[#1cb0f6] group-hover:scale-110 transition-transform" />
+            <span className="text-[8px] font-black uppercase text-slate-400 dark:text-slate-500">Slow</span>
+          </button>
+
+          {/* Letter Guide */}
+          <button
+            onClick={() => pronouncer.spellOutLetters(currentWord.word)}
+            className="px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs border border-slate-300 dark:border-slate-700 transition-all"
+            title="Spell letters out"
+          >
+            🔊 Spell Out
+          </button>
+        </div>
+
+        <div className="text-center font-mono text-xs font-bold text-slate-400 dark:text-slate-500">
+          Phonetic guide: <span className="text-slate-600 dark:text-slate-300">[{currentWord.phonetic}]</span>
+        </div>
+
+        {/* Duolingo Clues Accordion Pills */}
+        <div className="pt-2 border-t-2 border-slate-100 dark:border-slate-800 space-y-3">
+          <div className="flex items-center justify-between text-xs font-extrabold text-slate-400 dark:text-slate-500">
+            <span className="flex items-center gap-1.5 uppercase tracking-wider">
+              <Lightbulb className="w-4 h-4 text-[#ffc800] fill-[#ffc800]" />
+              Need a clue?
             </span>
             {hintsUsedCount > 0 && (
-              <span className="text-xs text-amber-600 font-medium">
-                {hintsUsedCount} hint{hintsUsedCount > 1 ? 's' : ''} requested
+              <span className="text-[#1cb0f6]">
+                {hintsUsedCount} hint{hintsUsedCount > 1 ? 's' : ''} used
               </span>
             )}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => handleToggleClue('def')}
-              className={`p-2.5 rounded-xl border text-left text-xs font-semibold transition-all ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-extrabold border-2 border-b-4 transition-all ${
                 showDefinition
-                  ? 'bg-amber-100 dark:bg-amber-950/60 border-amber-400 text-amber-900 dark:text-amber-200'
-                  : 'bg-white dark:bg-slate-900 border-amber-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-300'
+                  ? 'bg-amber-100 dark:bg-amber-950/80 border-amber-300 dark:border-amber-700 border-b-amber-400 text-amber-900 dark:text-amber-200'
+                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 border-b-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
               }`}
             >
-              <span className="block font-bold">Definition</span>
-              <span className="text-[10px] text-slate-500">{showDefinition ? 'Revealed' : 'Click to show'}</span>
+              💡 Definition
             </button>
 
             <button
               onClick={() => handleToggleClue('origin')}
-              className={`p-2.5 rounded-xl border text-left text-xs font-semibold transition-all ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-extrabold border-2 border-b-4 transition-all ${
                 showOrigin
-                  ? 'bg-amber-100 dark:bg-amber-950/60 border-amber-400 text-amber-900 dark:text-amber-200'
-                  : 'bg-white dark:bg-slate-900 border-amber-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-300'
+                  ? 'bg-amber-100 dark:bg-amber-950/80 border-amber-300 dark:border-amber-700 border-b-amber-400 text-amber-900 dark:text-amber-200'
+                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 border-b-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
               }`}
             >
-              <span className="block font-bold">Language Origin</span>
-              <span className="text-[10px] text-slate-500">{showOrigin ? 'Revealed' : 'Click to show'}</span>
+              🌍 Origin ({currentWord.origin})
             </button>
 
             <button
               onClick={() => handleToggleClue('pos')}
-              className={`p-2.5 rounded-xl border text-left text-xs font-semibold transition-all ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-extrabold border-2 border-b-4 transition-all ${
                 showPOS
-                  ? 'bg-amber-100 dark:bg-amber-950/60 border-amber-400 text-amber-900 dark:text-amber-200'
-                  : 'bg-white dark:bg-slate-900 border-amber-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-300'
+                  ? 'bg-amber-100 dark:bg-amber-950/80 border-amber-300 dark:border-amber-700 border-b-amber-400 text-amber-900 dark:text-amber-200'
+                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 border-b-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
               }`}
             >
-              <span className="block font-bold">Part of Speech</span>
-              <span className="text-[10px] text-slate-500">{showPOS ? 'Revealed' : 'Click to show'}</span>
+              Grammar
             </button>
 
             <button
               onClick={() => handleToggleClue('sentence')}
-              className={`p-2.5 rounded-xl border text-left text-xs font-semibold transition-all ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-extrabold border-2 border-b-4 transition-all ${
                 showSentence
-                  ? 'bg-amber-100 dark:bg-amber-950/60 border-amber-400 text-amber-900 dark:text-amber-200'
-                  : 'bg-white dark:bg-slate-900 border-amber-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-300'
+                  ? 'bg-amber-100 dark:bg-amber-950/80 border-amber-300 dark:border-amber-700 border-b-amber-400 text-amber-900 dark:text-amber-200'
+                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 border-b-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
               }`}
             >
-              <span className="block font-bold">Sample Sentence</span>
-              <span className="text-[10px] text-slate-500">{showSentence ? 'Revealed' : 'Click to show'}</span>
+              📝 Sentence
             </button>
           </div>
 
-          {/* Clue Details Panel */}
+          {/* Expanded Clue Details Card */}
           {(showDefinition || showOrigin || showPOS || showSentence || showSyllables) && (
-            <div className="bg-amber-100/50 dark:bg-slate-900/80 rounded-2xl p-4 border border-amber-200 dark:border-slate-800 space-y-2 text-sm text-slate-800 dark:text-slate-200 animate-fadeIn">
+            <div className="bg-sky-50/80 dark:bg-sky-950/40 rounded-2xl p-4 border-2 border-sky-200 dark:border-sky-800 space-y-2 text-xs text-sky-950 dark:text-sky-100 font-bold">
               {showDefinition && (
                 <div>
-                  <span className="font-bold text-amber-800 dark:text-amber-300 text-xs uppercase block">Definition:</span>
-                  <p className="italic">{currentWord.definition}</p>
+                  <span className="text-[10px] text-sky-600 dark:text-sky-400 uppercase font-extrabold block">Definition:</span>
+                  <p className="text-slate-800 dark:text-slate-200 text-sm italic">"{currentWord.definition}"</p>
                 </div>
               )}
 
               {showOrigin && (
-                <div className="pt-1">
-                  <span className="font-bold text-amber-800 dark:text-amber-300 text-xs uppercase block">Language of Origin:</span>
-                  <p className="font-semibold text-amber-900 dark:text-amber-100">🌍 {currentWord.origin}</p>
+                <div>
+                  <span className="text-[10px] text-sky-600 dark:text-sky-400 uppercase font-extrabold block">Language Origin:</span>
+                  <p className="text-slate-800 dark:text-slate-200 text-sm">🌍 {currentWord.origin}</p>
                 </div>
               )}
 
               {showPOS && (
-                <div className="pt-1">
-                  <span className="font-bold text-amber-800 dark:text-amber-300 text-xs uppercase block">Part of Speech:</span>
-                  <p className="capitalize font-medium">{currentWord.partOfSpeech}</p>
+                <div>
+                  <span className="text-[10px] text-sky-600 dark:text-sky-400 uppercase font-extrabold block">Part of Speech:</span>
+                  <p className="capitalize text-slate-800 dark:text-slate-200">{currentWord.partOfSpeech}</p>
                 </div>
               )}
 
               {showSentence && (
-                <div className="pt-1">
-                  <span className="font-bold text-amber-800 dark:text-amber-300 text-xs uppercase block">Sentence Context:</span>
-                  <p className="italic">"{currentWord.sampleSentence}"</p>
-                </div>
-              )}
-
-              {showSyllables && (
-                <div className="pt-1">
-                  <span className="font-bold text-amber-800 dark:text-amber-300 text-xs uppercase block">Syllables:</span>
-                  <p className="font-mono tracking-widest">{currentWord.syllables || currentWord.word}</p>
+                <div>
+                  <span className="text-[10px] text-sky-600 dark:text-sky-400 uppercase font-extrabold block">Example Usage:</span>
+                  <p className="text-slate-800 dark:text-slate-200 italic">"{currentWord.sampleSentence}"</p>
                 </div>
               )}
             </div>
           )}
         </div>
 
-        {/* Spelling Input & Submission Form */}
+        {/* Duolingo Spelling Input Form */}
         <form onSubmit={handleSubmitSpelling} className="space-y-4 pt-2">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-              Enter Your Spelling Attempt:
-            </label>
-            <div className="relative">
-              <input
-                ref={inputRef}
-                type="text"
-                disabled={feedback !== null}
-                value={userAttempt}
-                onChange={(e) => setUserAttempt(e.target.value)}
-                placeholder="Type word here..."
-                autoComplete="off"
-                autoCorrect="off"
-                spellCheck="false"
-                className="w-full px-5 py-4 text-2xl font-black tracking-wide text-slate-900 dark:text-amber-100 bg-white dark:bg-slate-900 border-2 border-amber-300 dark:border-slate-700 rounded-2xl focus:outline-none focus:border-amber-500 dark:focus:border-amber-400 shadow-inner disabled:opacity-80"
-              />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-400">
-                {userAttempt.length} chars
-              </span>
-            </div>
+          <div className="w-full">
+            <input
+              ref={inputRef}
+              type="text"
+              disabled={feedback !== null}
+              value={userAttempt}
+              onChange={(e) => setUserAttempt(e.target.value)}
+              placeholder="Type your answer..."
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck="false"
+              className="w-full text-center text-3xl sm:text-4xl font-black text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 focus:border-[#1cb0f6] focus:bg-white dark:focus:bg-slate-900 rounded-2xl p-5 shadow-inner outline-none uppercase placeholder:normal-case transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
+            />
           </div>
-
-          {!feedback ? (
-            <button
-              type="submit"
-              disabled={!userAttempt.trim()}
-              className="w-full py-4 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-slate-950 font-black text-lg rounded-2xl shadow-md transition-all active:scale-[0.99] flex items-center justify-center gap-2"
-            >
-              Submit Spelling for Instant Feedback
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleNextWord}
-              className="w-full py-4 bg-slate-900 dark:bg-amber-500 hover:bg-slate-800 dark:hover:bg-amber-600 text-white dark:text-slate-950 font-black text-lg rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
-            >
-              Next Word ({currentIndex + 1}/{activeWords.length})
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          )}
         </form>
 
-        {/* Instant Feedback Analysis Results */}
-        {feedback && (
-          <div className={`p-6 rounded-2xl border ${
-            feedback.isCorrect
-              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800'
-              : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800'
-          } space-y-4 animate-scaleUp`}>
-            
-            {/* Outcome Banner */}
-            <div className="flex items-start gap-3">
-              {feedback.isCorrect ? (
-                <CheckCircle2 className="w-8 h-8 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-              ) : (
-                <XCircle className="w-8 h-8 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
-              )}
+      </div>
 
-              <div>
-                <h4 className={`text-xl font-black ${
-                  feedback.isCorrect ? 'text-emerald-900 dark:text-emerald-200' : 'text-rose-900 dark:text-rose-200'
-                }`}>
-                  {feedback.isCorrect ? 'Correct Spelling!' : 'Not Quite Right'}
-                </h4>
-                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  {feedback.summaryNote}
-                </p>
-              </div>
+      {/* Authentic Duolingo Sticky Bottom Sheet Action Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-white dark:bg-[#161c28] border-t-2 border-slate-200 dark:border-slate-800 shadow-2xl p-4 sm:p-6 transition-all">
+        <div className="max-w-3xl mx-auto flex items-center justify-between">
+          
+          {!feedback ? (
+            /* Unsubmitted state: Giant Green CHECK Button */
+            <div className="w-full flex items-center justify-between gap-4">
+              <span className="text-xs font-black text-slate-400 dark:text-slate-500 hidden sm:inline uppercase tracking-wider">
+                Word {currentIndex + 1} of {sessionQueue.length}
+              </span>
+              <button
+                type="button"
+                onClick={() => handleSubmitSpelling()}
+                disabled={!userAttempt.trim()}
+                className="w-full sm:w-auto px-12 py-4 bg-[#58cc02] hover:bg-[#61e002] disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:border-slate-300 dark:disabled:border-slate-700 disabled:text-slate-400 dark:disabled:text-slate-600 border-b-4 border-[#46a302] active:translate-y-1 active:border-b-0 text-white font-black text-base uppercase tracking-wider rounded-2xl transition-all shadow-md cursor-pointer"
+              >
+                CHECK
+              </button>
             </div>
-
-            {/* Letter-by-Letter Visual Comparison Breakdown */}
-            <div className="bg-white/80 dark:bg-slate-900/80 rounded-xl p-4 border border-amber-200/50 dark:border-slate-800 space-y-3">
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                Letter-by-Letter Analysis:
-              </div>
-
-              <div className="flex flex-wrap items-center gap-1.5 font-mono text-xl">
-                {feedback.letters.map((item, idx) => {
-                  if (item.status === 'correct') {
-                    return (
-                      <span key={idx} className="w-10 h-12 rounded-lg bg-emerald-500 text-white font-black flex items-center justify-center shadow-xs">
-                        {item.char}
-                      </span>
-                    );
-                  } else if (item.status === 'wrong') {
-                    return (
-                      <div key={idx} className="flex flex-col items-center">
-                        <span className="w-10 h-12 rounded-lg bg-rose-500 text-white font-black flex items-center justify-center shadow-xs">
-                          {item.char}
-                        </span>
-                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-1">
-                          ↳ {item.expectedChar}
-                        </span>
-                      </div>
-                    );
-                  } else if (item.status === 'missing') {
-                    return (
-                      <div key={idx} className="flex flex-col items-center">
-                        <span className="w-10 h-12 rounded-lg bg-amber-200 dark:bg-amber-950 text-amber-900 dark:text-amber-200 font-black border-2 border-dashed border-amber-400 flex items-center justify-center">
-                          ?
-                        </span>
-                        <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold mt-1">
-                          + {item.expectedChar}
-                        </span>
-                      </div>
-                    );
-                  } else {
-                    return (
-                      <span key={idx} className="w-10 h-12 rounded-lg bg-slate-300 dark:bg-slate-700 text-slate-500 line-through font-black flex items-center justify-center">
-                        {item.char}
-                      </span>
-                    );
-                  }
-                })}
-              </div>
-
-              {!feedback.isCorrect && (
-                <div className="pt-2 text-sm">
-                  <span className="font-bold text-slate-700 dark:text-slate-300">Correct Full Spelling: </span>
-                  <span className="font-mono font-black text-amber-600 dark:text-amber-400 text-lg uppercase tracking-wider">
-                    {currentWord.word}
-                  </span>
+          ) : feedback.isCorrect ? (
+            /* CORRECT FEEDBACK BANNER */
+            <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#d7ffb8] dark:bg-[#1d3d0e] -m-4 sm:-m-6 p-4 sm:p-6 border-t-2 border-[#b8f28b] dark:border-[#2a5c13]">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="w-12 h-12 rounded-full bg-[#58cc02] text-white flex items-center justify-center font-black text-2xl flex-shrink-0">
+                  ✓
                 </div>
-              )}
-            </div>
-
-            {/* Etymology Mnemonic Memory Trick */}
-            {currentWord.mnemonic && (
-              <div className="flex items-start gap-2 bg-amber-100/60 dark:bg-amber-950/40 p-3.5 rounded-xl border border-amber-300/60 text-xs text-amber-950 dark:text-amber-200">
-                <Lightbulb className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold">Mnemonic Memory Hook: </span>
-                  {currentWord.mnemonic}
+                  <h4 className="text-xl font-black text-[#58a700] dark:text-[#72f00a]">
+                    You are correct!
+                  </h4>
+                  <p className="text-xs font-bold text-[#58a700]/90 dark:text-[#72f00a]/90">
+                    +10 XP • Perfect Spelling!
+                  </p>
                 </div>
               </div>
-            )}
 
-            {/* AI Custom Coach Explanation */}
-            {!feedback.isCorrect && (
-              <div className="pt-2">
-                {isLoadingAiAdvice ? (
-                  <div className="flex items-center gap-2 text-xs text-amber-700 dark:text-amber-400">
-                    <Sparkles className="w-4 h-4 animate-spin" />
-                    Asking Gemini AI Spelling Coach for mistake analysis...
+              <button
+                type="button"
+                onClick={handleNextWord}
+                className="w-full sm:w-auto px-10 py-3.5 bg-[#58cc02] hover:bg-[#61e002] border-b-4 border-[#46a302] active:translate-y-1 active:border-b-0 text-white font-black text-base uppercase tracking-wider rounded-2xl transition-all shadow-md flex items-center justify-center gap-2"
+              >
+                CONTINUE
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </div>
+          ) : (
+            /* INCORRECT FEEDBACK BANNER */
+            <div className="w-full flex flex-col items-start gap-4 bg-[#ffdfe0] dark:bg-[#401214] -m-4 sm:-m-6 p-4 sm:p-6 border-t-2 border-[#ffc1c4] dark:border-[#6b1e22]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+                <div className="flex items-start gap-3">
+                  <div className="w-12 h-12 rounded-full bg-[#ff4b4b] text-white flex items-center justify-center font-black text-2xl flex-shrink-0">
+                    ✕
                   </div>
-                ) : aiAdvice ? (
-                  <div className="bg-amber-50 dark:bg-slate-900 p-4 rounded-xl border border-amber-300 dark:border-amber-800 space-y-1">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-amber-800 dark:text-amber-300">
-                      <Sparkles className="w-4 h-4 text-amber-500" />
-                      Gemini AI Etymological Coach Analysis:
-                    </div>
-                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-                      {aiAdvice}
+                  <div>
+                    <h4 className="text-sm font-black text-[#ea2b2b] dark:text-[#ff6b6b] uppercase tracking-wider">
+                      Correct solution:
+                    </h4>
+                    <p className="text-2xl font-black text-[#ea2b2b] dark:text-[#ff6b6b] tracking-wide uppercase">
+                      {currentWord.word}
+                    </p>
+                    <p className="text-xs font-bold text-[#ea2b2b]/80 dark:text-[#ff6b6b]/80 mt-0.5">
+                      Your attempt: "{userAttempt}"
                     </p>
                   </div>
-                ) : null}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleNextWord}
+                  className="w-full sm:w-auto px-10 py-3.5 bg-[#ff4b4b] hover:bg-[#ff5959] border-b-4 border-[#ea2b2b] active:translate-y-1 active:border-b-0 text-white font-black text-base uppercase tracking-wider rounded-2xl transition-all shadow-md flex items-center justify-center gap-2"
+                >
+                  CONTINUE
+                  <ArrowRight className="w-5 h-5" />
+                </button>
               </div>
-            )}
 
-          </div>
-        )}
+              {/* AI Advice explanation if loading or present */}
+              {isLoadingAiAdvice ? (
+                <div className="flex items-center gap-2 text-xs font-bold text-[#ea2b2b] dark:text-[#ff6b6b]">
+                  <Sparkles className="w-4 h-4 animate-spin" />
+                  Duo Coach is generating feedback...
+                </div>
+              ) : aiAdvice ? (
+                <div className="w-full bg-white/90 dark:bg-slate-900/90 p-3 rounded-xl border border-[#ffc1c4] dark:border-[#6b1e22] text-xs text-slate-700 dark:text-slate-200 font-bold">
+                  🦉 <strong>Duo Tip:</strong> {aiAdvice}
+                </div>
+              ) : null}
+            </div>
+          )}
 
+        </div>
       </div>
 
     </div>
   );
 };
+
+

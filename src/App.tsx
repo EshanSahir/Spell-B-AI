@@ -16,6 +16,24 @@ export default function App() {
   const [activeWordList, setActiveWordList] = useState<WordList | null>(null);
   const [appStats, setAppStats] = useState<AppStats>(loadAppStats());
 
+  // Theme switcher state with persistence
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    return localStorage.getItem('duo_spelling_dark_mode') === 'true';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('duo_spelling_dark_mode', isDarkMode ? 'true' : 'false');
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(prev => !prev);
+  };
+
   // Load initial lists and default list
   useEffect(() => {
     const loadedLists = getAllWordLists();
@@ -59,7 +77,9 @@ export default function App() {
   const todayAttempted = todayEntry ? todayEntry.wordsAttempted : 0;
 
   return (
-    <div className="min-h-screen bg-amber-50/40 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors">
+    <div className={`min-h-screen transition-colors duration-300 flex flex-col font-sans selection:bg-[#58cc02] selection:text-white ${
+      isDarkMode ? 'dark bg-[#0b0f17] text-slate-100' : 'bg-[#f7f7f7] text-slate-800'
+    }`}>
       
       {/* Top Header */}
       <Header
@@ -70,6 +90,8 @@ export default function App() {
         streakDays={appStats.streakDays}
         todayCorrect={todayCorrect}
         todayAttempted={todayAttempted}
+        isDarkMode={isDarkMode}
+        toggleDarkMode={toggleDarkMode}
       />
 
       {/* Main Container */}
@@ -80,6 +102,8 @@ export default function App() {
             selectedDifficulty={selectedDifficulty}
             onRecordResult={handleRecordResult}
             onChangeListClick={() => setActiveTab('lists')}
+            onNavigateToMistakes={() => setActiveTab('mistakes')}
+            hasMistakes={appStats.mistakeBank.length > 0}
           />
         )}
 
@@ -118,13 +142,14 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-amber-200/60 dark:border-slate-800 py-4 text-center text-xs text-slate-500">
+      <footer className="border-t-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-[#161c28] py-4 text-center text-xs text-slate-500 dark:text-slate-400 font-bold transition-colors">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>🐝 <strong>SpellBee AI Studio</strong> — Train for National & Regional Spelling Bees</span>
-          <span>Powered by Gemini 3.6 Flash & Web Speech Synthesis</span>
+          <span>🦉 <strong>Duolingo Spelling Bee</strong> — Train with Duo for Regional & National Bee Champions</span>
+          <span className="text-slate-400 dark:text-slate-500 font-semibold">Powered by Gemini AI & Speech Engine</span>
         </div>
       </footer>
 
     </div>
   );
 }
+

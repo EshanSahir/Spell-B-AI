@@ -83,33 +83,33 @@ export const AICoachChat: React.FC = () => {
     <div className="max-w-4xl mx-auto space-y-6">
       
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 to-amber-950 text-amber-100 p-6 rounded-3xl border border-amber-800/50 shadow-md flex items-center gap-4">
-        <div className="p-3 rounded-2xl bg-amber-500 text-slate-950 font-bold">
-          <Brain className="w-6 h-6" />
+      <div className="bg-white dark:bg-[#161c28] text-slate-800 dark:text-slate-100 p-6 sm:p-8 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4 transition-colors">
+        <div className="w-12 h-12 rounded-2xl bg-[#58cc02] text-white flex items-center justify-center font-black text-2xl border-b-4 border-[#46a302] flex-shrink-0">
+          🦉
         </div>
         <div>
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            AI Spelling Bee Champion Coach
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold">
-              Gemini 3.6 Flash
+          <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-2">
+            Duo Spelling Bee Coach
+            <span className="text-[10px] font-black px-2.5 py-0.5 rounded-lg bg-sky-100 dark:bg-sky-950/80 text-[#1cb0f6] border border-sky-200 dark:border-sky-800 uppercase tracking-wider">
+              Gemini AI
             </span>
           </h2>
-          <p className="text-xs text-amber-200/80">
-            Ask any question about root origins, pronunciation quirks, rules, or mnemonics.
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400">
+            Etymological guidance, root origin rules, and mnemonics for championship competition.
           </p>
         </div>
       </div>
 
       {/* Suggested Questions */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
-          Quick Prompts:
+        <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 whitespace-nowrap">
+          Prompts:
         </span>
         {sampleQuestions.map((q) => (
           <button
             key={q}
             onClick={() => setInputQuery(q)}
-            className="text-xs px-3 py-1.5 bg-white dark:bg-slate-900 hover:bg-amber-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl border border-amber-200/80 dark:border-slate-800 whitespace-nowrap transition-colors"
+            className="text-xs font-extrabold px-3.5 py-2 bg-white dark:bg-[#161c28] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl border-2 border-slate-200 dark:border-slate-800 whitespace-nowrap transition-colors"
           >
             {q}
           </button>
@@ -117,7 +117,7 @@ export const AICoachChat: React.FC = () => {
       </div>
 
       {/* Chat Messages Box */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-amber-200/80 dark:border-slate-800 p-6 h-[450px] overflow-y-auto space-y-4 shadow-inner">
+      <div className="bg-white dark:bg-[#161c28] rounded-3xl border-2 border-slate-200 dark:border-slate-800 p-6 h-[450px] overflow-y-auto space-y-4 shadow-inner transition-colors">
         {messages.map((m) => (
           <div
             key={m.id}
@@ -126,20 +126,20 @@ export const AICoachChat: React.FC = () => {
             }`}
           >
             <div
-              className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs flex-shrink-0 ${
+              className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm flex-shrink-0 border-b-2 ${
                 m.sender === 'user'
-                  ? 'bg-amber-500 text-slate-950'
-                  : 'bg-slate-900 text-amber-400 border border-amber-500/30'
+                  ? 'bg-[#1cb0f6] border-[#1899d6] text-white'
+                  : 'bg-[#58cc02] border-[#46a302] text-white'
               }`}
             >
-              {m.sender === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+              {m.sender === 'user' ? '👤' : '🦉'}
             </div>
 
             <div
-              className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
+              className={`max-w-[80%] p-4 rounded-2xl text-xs font-bold leading-relaxed whitespace-pre-wrap ${
                 m.sender === 'user'
-                  ? 'bg-amber-500 text-slate-950 font-medium'
-                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                  ? 'bg-[#1cb0f6] text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 font-sans'
               }`}
             >
               {m.text}
@@ -149,12 +149,12 @@ export const AICoachChat: React.FC = () => {
 
         {isLoading && (
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center">
-              <Bot className="w-4 h-4 animate-bounce" />
+            <div className="w-10 h-10 rounded-2xl bg-[#58cc02] text-white flex items-center justify-center border-b-2 border-[#46a302]">
+              🦉
             </div>
-            <div className="px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-2xl text-xs text-slate-500 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 animate-spin text-amber-500" />
-              Coach is analyzing spelling rules...
+            <div className="px-4 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 animate-spin text-[#1cb0f6]" />
+              Duo Coach is typing...
             </div>
           </div>
         )}
@@ -168,13 +168,13 @@ export const AICoachChat: React.FC = () => {
           type="text"
           value={inputQuery}
           onChange={(e) => setInputQuery(e.target.value)}
-          placeholder="Ask a question about spelling rules, roots, or mnemonics..."
-          className="flex-1 px-5 py-3.5 text-sm bg-white dark:bg-slate-900 border-2 border-amber-200 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-amber-500 shadow-xs"
+          placeholder="Ask Duo about spelling rules, roots, or mnemonics..."
+          className="flex-1 px-5 py-3.5 text-xs font-bold bg-white dark:bg-[#161c28] text-slate-800 dark:text-slate-100 border-2 border-slate-200 dark:border-slate-800 rounded-2xl focus:outline-none focus:border-[#1cb0f6] placeholder:text-slate-400 dark:placeholder:text-slate-500"
         />
         <button
           type="submit"
           disabled={!inputQuery.trim() || isLoading}
-          className="px-6 py-3.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-slate-950 font-black rounded-2xl shadow-md transition-all flex items-center gap-2"
+          className="px-6 py-3.5 bg-[#58cc02] hover:bg-[#61e002] disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:border-slate-300 dark:disabled:border-slate-700 disabled:text-slate-400 dark:disabled:text-slate-600 border-b-4 border-[#46a302] active:translate-y-1 active:border-b-0 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all flex items-center gap-2"
         >
           <Send className="w-4 h-4" />
           Send
