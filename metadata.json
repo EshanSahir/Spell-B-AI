@@ -1,0 +1,6 @@
+{
+  "name": "Spelling Bee Trainer AI",
+  "description": "An AI-powered Spelling Bee training assistant featuring custom word list generation, audio pronunciation guides, difficulty adjustments, instant spelling feedback, and daily progress analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
